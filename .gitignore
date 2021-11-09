@@ -1,5 +1,6 @@
 coupons.csv
 prod-gcloud-key
 cloud_sql_proxy
+.DS_Store
 venv
 .idea
