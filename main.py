@@ -10,6 +10,9 @@ import MySQLdb
 
 
 def run_proxy() -> None:
+    """
+    Run the proxy for the production database.
+    """
     # Download the cloud_sql_proxy.
     urllib.request.urlretrieve(f'https://dl.google.com/cloudsql/cloud_sql_proxy.{platform}.amd64',
                                'cloud_sql_proxy')
@@ -27,12 +30,12 @@ def run_proxy() -> None:
 def connect_database(host: str, port: int, user: str, password: str, database: str) -> MySQLdb.connect:
     """
     Connect to the database.
+
     :param host: Database host.
     :param port: Database port.
     :param user: Username.
     :param password: Password.
     :param database: Database name.
-    :return:
     """
     return MySQLdb.connect(host=host, port=port, user=user, password=password, db=database)
 
