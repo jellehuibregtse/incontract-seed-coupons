@@ -4,6 +4,7 @@ import os
 import random
 import string
 import urllib.request
+from pathlib import Path
 from sys import platform
 
 import MySQLdb
@@ -90,10 +91,15 @@ def seed_coupons(amount_of_coupons: int = 100,
 
     db.commit()
 
-    # Write to the CSV file.
-    with open('coupons.csv', 'w', encoding='utf-8', newline='') as f:
+    # Check if the file exists.
+    exists = Path('coupons.csv').exists()
+
+    # Append to the CSV file.
+    with open('coupons.csv', 'a', encoding='utf-8', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(header)
+        # Add headers if the file did not exist.
+        if not exists:
+            writer.writerow(header)
         for row in rows:
             writer.writerow(row)
 
@@ -101,4 +107,8 @@ def seed_coupons(amount_of_coupons: int = 100,
 
 
 if __name__ == '__main__':
-    seed_coupons()
+    seed_coupons(amount_of_coupons=25, amount_of_uses=5)
+    seed_coupons(amount_of_coupons=25, amount_of_uses=1)
+    seed_coupons(amount_of_coupons=25, amount_of_uses=5, discount=50)
+    seed_coupons(amount_of_coupons=25, amount_of_uses=1, discount=50)
+
