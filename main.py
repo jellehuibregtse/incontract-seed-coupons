@@ -40,13 +40,20 @@ def connect_database(host: str, port: int, user: str, password: str, database: s
     return MySQLdb.connect(host=host, port=port, user=user, password=password, db=database)
 
 
-def seed_coupons(amount_of_coupons: int = 100, expires_in: int = 90, discount: int = 100, prod: bool = False) -> None:
+def seed_coupons(amount_of_coupons: int = 100,
+                 expires_in: int = 90,
+                 discount: int = 100,
+                 amount_of_uses: int = 1,
+                 issuer_id: int = 'null',
+                 prod: bool = False) -> None:
     """
     Seed the coupons table.
 
     :param amount_of_coupons: The number of coupons to seed.
     :param expires_in: Expiry date in days.
     :param discount: Discount percentage.
+    :param amount_of_uses: The amount of times the coupon can be used.
+    :param issuer_id: The issuer id.
     :param prod: If True, seeds the prod database.
     """
     # If production run the proxy and use the production database.
@@ -64,17 +71,22 @@ def seed_coupons(amount_of_coupons: int = 100, expires_in: int = 90, discount: i
     expired_on = str(datetime.datetime.today() + datetime.timedelta(days=expires_in))
 
     # Headers for the CSV file.
-    header = ['CODE', 'DATE_CREATED', 'EXPIRY_DATE']
+    header = ['CODE', 'DATE_CREATED', 'EXPIRY_DATE', 'DISCOUNT', 'AMOUNT_OF_USES', 'ISSUER_ID']
     rows = []
 
     for i in range(amount_of_coupons):
-        code = ''.join(random.choice(string.ascii_uppercase) for _ in range(6))
+        # If the code already exists, generate a new one.
+        while True:
+            code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+            cur.execute(f'SELECT * FROM coupon WHERE CODE = "{code}"')
+            if not cur.fetchone():
+                break
 
-        row = [code, now, expired_on]
+        row = [code, now, expired_on, discount, amount_of_uses, issuer_id]
         rows.append(row)
 
         cur.execute(f"INSERT INTO coupon VALUES (default, null, '{code}', '{now}', {discount}, null, "
-                    f"'{expired_on}', null)")
+                    f"'{expired_on}', {amount_of_uses}, {issuer_id})")
 
     db.commit()
 
