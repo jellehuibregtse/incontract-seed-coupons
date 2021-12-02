@@ -43,6 +43,7 @@ def connect_database(host: str, port: int, user: str, password: str, database: s
 
 def seed_coupons(amount_of_coupons: int = 100,
                  expires_in: int = 90,
+                 user_id: int = 'null',
                  discount: int = 100,
                  amount_of_uses: int = 1,
                  issuer_id: int = 'null',
@@ -53,6 +54,7 @@ def seed_coupons(amount_of_coupons: int = 100,
 
     :param amount_of_coupons: The number of coupons to seed.
     :param expires_in: Expiry date in days.
+    :param user_id: The user id of the owner.
     :param discount: Discount percentage.
     :param amount_of_uses: The amount of times the coupon can be used.
     :param issuer_id: The issuer id.
@@ -74,7 +76,7 @@ def seed_coupons(amount_of_coupons: int = 100,
     expired_on = str(datetime.datetime.today() + datetime.timedelta(days=expires_in))
 
     # Headers for the CSV file.
-    header = ['CODE', 'DATE_CREATED', 'EXPIRY_DATE', 'DISCOUNT', 'AMOUNT_OF_USES', 'ISSUER_ID', 'TYPE']
+    header = ['CODE', 'USER_ID', 'DATE_CREATED', 'EXPIRY_DATE', 'DISCOUNT', 'AMOUNT_OF_USES', 'ISSUER_ID', 'TYPE']
     rows = []
 
     for i in range(amount_of_coupons):
@@ -88,7 +90,7 @@ def seed_coupons(amount_of_coupons: int = 100,
         row = [code, now, expired_on, discount, amount_of_uses, issuer_id, coupon_type]
         rows.append(row)
 
-        cur.execute(f"INSERT INTO coupon VALUES (default, null, '{code}', '{now}', {discount}, null, "
+        cur.execute(f"INSERT INTO coupon VALUES (default, {user_id}, '{code}', '{now}', {discount}, null, "
                     f"'{expired_on}', {amount_of_uses}, {issuer_id}, '{coupon_type}')")
 
     db.commit()
